@@ -1,6 +1,65 @@
-# Kubernetes Root-Cause Analysis Agent
+# Kubernetes RCA Agent
 
 This repository contains the prototype for an AI agent capable of investigating Kubernetes incidents.
+### Architecture
+
+The system separates the investigation loop, LLM reasoning, security boundary, and observability sources.
+
+```mermaid
+flowchart TD
+    A[User / SRE] --> B[React Web UI<br/>localhost:3000]
+
+    B -->|REST + SSE| C[FastAPI Backend<br/>localhost:8000]
+
+    C --> D[LangGraph RCA Agent]
+
+    D --> E[Gemini Model Provider]
+    E --> E1[Primary<br/>gemini-3.6-flash]
+    E --> E2[Fallback<br/>gemini-3.5-flash]
+
+    D --> F[Investigation Decision]
+
+    F --> G[Security / Tool Layer]
+
+    G --> G1[Read-Only Tool Allowlist]
+    G --> G2[Namespace Validation]
+    G --> G3[Pydantic Argument Validation]
+    G --> G4[Query / Result Bounds]
+    G --> G5[Untrusted Telemetry]
+
+    G --> H[Kubernetes]
+    G --> I[Prometheus]
+    G --> J[Loki]
+
+    H --> K[Kind Kubernetes Cluster]
+    K --> K1[frontend]
+    K --> K2[checkout]
+    K --> K3[payment]
+    K --> K4[database]
+
+    I --> L[Metrics Evidence]
+    J --> M[Log Evidence]
+    H --> N[Cluster Evidence]
+
+    L --> O[Evidence Collection]
+    M --> O
+    N --> O
+
+    O --> P[Update Hypotheses]
+
+    P --> Q{Evidence Sufficient?}
+
+    Q -->|NO| F
+    Q -->|YES| R[Structured RCA]
+
+    R --> R1[Root Cause]
+    R --> R2[Observed Facts]
+    R --> R3[Evidence]
+    R --> R4[Timeline]
+    R --> R5[Confidence]
+    R --> R6[Alternatives]
+    R --> R7[Uncertainty]
+```
 
 ## Phase 1: Local Environment Setup
 
@@ -32,14 +91,6 @@ To destroy the cluster and clean up resources:
 ./teardown.sh
 ```
 
-## Gemini API Limits & Rate Limiting
-
-The RCA agent is tuned to run sustainably within the Gemini Free Tier constraints. 
-* **RPM (Requests Per Minute)** is the primary bottleneck for this setup, not TPM (Tokens Per Minute). 
-* To ensure the agent never overwhelms the free tier, it uses a highly conservative application-side RPM limiter centralized exclusively on the LLM interaction layer.
-* Local Kubernetes/Prometheus tool executions operate at full speed without arbitrary delay.
-* The API minimum resting period is adjustable via the `GEMINI_MIN_CALL_INTERVAL_SECONDS` environment variable (Defaults to 12 seconds).
-
 ## Security Model
 
 This agent operates under a strict, competition-ready security boundary designed to protect the cluster from hallucinated LLM operations, malformed commands, and prompt injection via untrusted telemetry.
@@ -60,19 +111,43 @@ python k8s-rca-agent/security/demo.py
 
 A lightweight, modern web dashboard built with React and Vite allows you to visualize the agent's investigations and RCA conclusions in real time. 
 
-### Architecture
+
+
+
+### Investigation Flow
 ```
-Browser 
-  ↓ (HTTP / SSE)
-React Frontend (localhost:3000)
-  ↓ (REST)
-FastAPI Backend (localhost:8000)
-  ↓
-LangGraph Agent
-  ↓
-Gemini API / Kubernetes / Loki
+Incident
+   ↓
+Initial Observation
+   ↓
+Form Hypotheses
+   ↓
+Select Investigation Tool
+   ↓
+Collect Evidence
+   ↓
+Update Hypotheses
+   ↓
+Investigate Further ──────┐
+   │                      │
+   └──────────────────────┘
+            ↓
+       Evidence Sufficient?
+          /         \
+        No           Yes
+        ↓             ↓
+   More Queries    Conclude
+                      ↓
+              Structured RCA
+                      ↓
+       Root Cause + Evidence
+       Timeline + Confidence
+       Alternatives + Uncertainty
 ```
 
+![OOM investigation dashboard](scenarios/OOM%20.png)
+The dashboard visualizes the investigation state and structured RCA produced by the agent.
+       
 ### Startup Instructions
 
 To launch the dashboard, open two terminals.
@@ -91,7 +166,15 @@ Then open your browser to [http://localhost:3000](http://localhost:3000).
 
 ### Demo Mode vs. Real Agent Mode
 * **Demo Mode**: Because Gemini API rate limits are extremely tight on the free tier, you can check the "Demo Mode (Mock LLM)" box in the UI to run deterministic frontend investigations. This skips the Gemini API entirely, executing deterministic mock outputs while still running the actual Kubernetes pipeline locally and rendering the results perfectly.
-* **Real Agent Mode**: Leave the box unchecked to trigger the live `gemini-3.6-flash` model. 
+* **Real Agent Mode**: Leave the box unchecked to trigger the live `gemini-3.6-flash` model.
+
+## Gemini API Limits & Rate Limiting
+
+The RCA agent is tuned to run sustainably within the Gemini Free Tier constraints. 
+* **RPM (Requests Per Minute)** is the primary bottleneck for this setup, not TPM (Tokens Per Minute). 
+* To ensure the agent never overwhelms the free tier, it uses a highly conservative application-side RPM limiter centralized exclusively on the LLM interaction layer.
+* Local Kubernetes/Prometheus tool executions operate at full speed without arbitrary delay.
+* The API minimum resting period is adjustable via the `GEMINI_MIN_CALL_INTERVAL_SECONDS` environment variable (Defaults to 12 seconds).
 
 ### API Endpoints
 * `GET /health` - Backend health status.
