@@ -1,0 +1,6 @@
+{
+  "scenario": "configuration-failure",
+  "expected_root_cause": "The checkout service is misconfigured. Its nginx configmap (checkout-config) has an incorrect upstream URL (payment-service-typo) that cannot be resolved, resulting in a 502 Bad Gateway when traffic is routed.",
+  "required_tool_calls": ["get_deployment", "query_loki"],
+  "difficulty": "medium"
+}

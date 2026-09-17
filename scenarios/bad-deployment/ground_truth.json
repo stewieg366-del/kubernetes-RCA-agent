@@ -1,0 +1,8 @@
+{
+  "scenario_id": "bad-deployment",
+  "title": "Bad Deployment Incident",
+  "intended_root_cause": "The payment deployment was updated to use a non-existent container image (nginx:invalid-version-123).",
+  "expected_symptoms": ["Payment service becomes unavailable or fails to roll out"],
+  "expected_evidence": ["Kubernetes event Failed to pull image", "Pod status ImagePullBackOff"],
+  "possible_alternative_hypotheses": ["Network connectivity issue to container registry", "Registry authentication failure"]
+}

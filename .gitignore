@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+.venv/
+env/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.log
+.DS_Store
+
+# Local development environments
+test_venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# OS/editor temporary files
+*.swp
+*.swo

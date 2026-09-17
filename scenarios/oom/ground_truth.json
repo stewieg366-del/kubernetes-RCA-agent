@@ -1,0 +1,8 @@
+{
+  "scenario_id": "oom",
+  "title": "Out of Memory Incident",
+  "intended_root_cause": "The oom-workload application intentionally allocates memory in a loop until it exceeds its 64Mi container limit.",
+  "expected_symptoms": ["oom-workload pod crashes continuously"],
+  "expected_evidence": ["Kubernetes pod status shows OOMKilled", "Container termination reason is OOMKilled"],
+  "possible_alternative_hypotheses": ["Node out of memory", "Application exiting normally"]
+}

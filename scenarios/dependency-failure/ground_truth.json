@@ -1,0 +1,8 @@
+{
+  "scenario_id": "dependency-failure",
+  "title": "Dependency Chain Failure",
+  "intended_root_cause": "The payment Kubernetes Service was deleted, causing the checkout service's reverse proxy to fail DNS resolution for the payment upstream.",
+  "expected_symptoms": ["Frontend returns 502 Bad Gateway to users"],
+  "expected_evidence": ["Frontend logs show successful proxy to checkout but checkout returns 502", "Checkout logs show host not found in upstream payment.rca-demo.svc.cluster.local", "Kubernetes state shows payment service is missing"],
+  "possible_alternative_hypotheses": ["Payment pods are crashing", "Checkout application is down"]
+}
