@@ -1,6 +1,6 @@
 # Kubernetes RCA Agent
 
-This repository contains the prototype for an AI agent capable of investigating Kubernetes incidents.
+This repository contains  an AI agent capable of investigating Kubernetes incidents.
 ### Architecture
 
 The system separates the investigation loop, LLM reasoning, security boundary, and observability sources.
@@ -30,6 +30,8 @@ flowchart TD
     G --> H[Kubernetes]
     G --> I[Prometheus]
     G --> J[Loki]
+    G --> T[Jaeger]
+    T --> M[Log Evidence]
 
     H --> K[Kind Kubernetes Cluster]
     K --> K1[frontend]
@@ -63,7 +65,7 @@ flowchart TD
 
 ## Phase 1: Local Environment Setup
 
-This setup creates a lightweight, single-node `Kind` Kubernetes cluster and deploys a mock microservices application (`frontend`, `checkout`, `payment`, `database`). It is optimized for Apple Silicon (M2) and minimal resource usage.
+This setup creates a lightweight, single-node `Kind` Kubernetes cluster and deploys a mock microservices application (`frontend`, `checkout`, `payment`, `database`). It is optimized for resource usage.
 
 ### Prerequisites
 * Docker Desktop (running)
