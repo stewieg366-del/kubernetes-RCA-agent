@@ -1,6 +1,12 @@
-# Kubernetes RCA Agent
 
-This repository contains  an AI agent capable of investigating Kubernetes incidents.
+<div align="center">
+
+#  Kubernetes RCA Agent
+
+### An AI agent capable of investigating Kubernetes incidents.
+An AI-powered Kubernetes Root-Cause Analysis agent that investigates incidents using Kubernetes, Prometheus, and Loki, with structured evidence-driven RCA. Includes a standalone OpenTelemetry + Jaeger distributed tracing showcase.
+</div>
+
 ### Architecture
 
 The system separates the investigation loop, LLM reasoning, security boundary, and observability sources.
@@ -187,3 +193,4 @@ The dashboard strictly visualizes the structured RCA output (Evidence, Facts, Hy
 * Expose `GEMINI_API_KEY` or any environment variable to the frontend.
 * Expose arbitrary shell controls, `kubectl` commands, or destructive cluster access.
 * Bypass the Phase 5 tool boundary limits.
+  
